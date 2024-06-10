@@ -2,6 +2,8 @@ version: 0.2
 
 env:
   variables:
+     AWS_ACCESS_KEY_ID: "AKIA4ETHLKQW5QEWI6Z6"
+     AWS_SECRET_ACCESS_KEY: "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"
     # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are not hardcoded here
 
 phases:
