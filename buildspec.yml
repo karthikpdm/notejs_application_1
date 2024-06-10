@@ -12,7 +12,9 @@ phases:
       nodejs: 14
     commands:
       - echo "Updating apt-get and installing dependencies..."
-      - yum update -y && yum install -y awscli curl
+      #- yum update -y && yum install -y awscli curl
+      - yum update -y --allowerasing
+      - yum install -y --allowerasing awscli curl
 
   pre_build:
     commands:
