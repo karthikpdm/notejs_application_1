@@ -1,0 +1,53 @@
+version: 0.2
+
+env:
+  variables:
+    # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are not hardcoded here
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo "Updating apt-get and installing dependencies..."
+      - apt-get update && apt-get install -y awscli curl
+
+  pre_build:
+    commands:
+      - echo "Configuring AWS CLI..."
+      # Configure AWS CLI using environment variables provided by CodeBuild's IAM role
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 834514146349.dkr.ecr.ap-south-1.amazonaws.com
+
+      - echo "Installing kubectl..."
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - kubectl version --client
+
+      - echo "Updating kubeconfig for EKS cluster..."
+      - aws eks --region ap-south-1 update-kubeconfig --name myekscluster
+
+  build:
+    commands:
+      - echo "Installing Node.js dependencies..."
+      - npm install
+
+      - echo "Running tests..."
+      - npm test # Adjust this command based on your test setup
+
+      - echo "Building Docker image..."
+      - docker build -t gowda:latest .
+
+      - echo "Tagging Docker image..."
+      - docker tag gowda:latest 834514146349.dkr.ecr.ap-south-1.amazonaws.com/gowda:latest      
+
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR..."
+      - docker push 834514146349.dkr.ecr.ap-south-1.amazonaws.com/gowda:latest
+
+      - echo "Deploying to EKS..."
+      - kubectl apply -f deployment.yaml
+      - kubectl apply -f service.yaml
+
+
