@@ -29,7 +29,7 @@ phases:
       - kubectl version --client
 
       - echo "Updating kubeconfig for EKS cluster..."
-      - aws eks --region ap-south-1 update-kubeconfig --name myekscluster
+      #- aws eks --region ap-south-1 update-kubeconfig --name myekscluster
 
   build:
     commands:
